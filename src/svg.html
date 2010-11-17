@@ -13,7 +13,9 @@
 <script>
 
 $(function(){
-  app.run(document.getElementsByTagName('body')[0])
+  require(['svgapp'], function(svgapp){
+    svgapp.app.run(document.getElementsByTagName('body')[0])
+  })
 })
 </script>
 </head>

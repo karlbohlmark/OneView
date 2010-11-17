@@ -1,3 +1,8 @@
+require.define({'svgapp':function(require, exports, module){
+
+var svg = require('svg').svg,
+    svgassets = require('svg-assets').svgassets
+
 var inputstate = {
   mousedown: false,
   ctrlpressed: false
@@ -331,3 +336,7 @@ var app = (function(){
     }
   };
 })();
+
+exports.app = app;
+
+}}, ['svg']);
