@@ -1,7 +1,11 @@
 require.define({'svgapp':function(require, exports, module){
 
 var svg = require('svg').svg,
-    svgassets = require('svg-assets').svgassets
+    getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints,
+    svgassets = require('svg-assets').svgassets,
+    controlPanel = require('controlpanel'),
+    bus = require('eventbus').bus
+
 
 var inputstate = {
   mousedown: false,
@@ -11,6 +15,11 @@ var inputstate = {
 var nodes = new Lawnchair({table: 'nodes'});
 var relations = new Lawnchair({table:'relations'});
 var edits = [];//new Lawnchair({table:'edits'})
+
+bus.subscribe('command/clear', function(){
+  nodes.nuke() && relations.nuke()
+  document.location.reload()
+})
 
 var getRelationId = function(fromNode, toNode){
   return 'from=' + fromNode + '&to=' + toNode;
@@ -117,6 +126,16 @@ var app = (function(){
     }
   })()
   
+  bus.subscribe('command/deleterelation', function(id){
+    relations.each(function(r){
+      if(r.key==id){
+        relations.remove(id)
+        var el = document.getElementById(id)
+        el.parentNode.removeChild(el)
+      }
+    })
+  })
+  
   var actions = {
     'relationcreated': function(relation){
       var points = getRectangleConnectionPoints(document.getElementById(relation.from), document.getElementById(relation.to))
@@ -152,8 +171,8 @@ var app = (function(){
       inp.setAttribute('data-target', g.id)
       var matrix = g.transform.animVal.getItem(0).matrix
       inp.value = ''
-      inp.style.left = (parseInt(matrix.e) -70) +'px'
-      inp.style.top = parseInt(matrix.f) -10 +'px'
+      inp.style.left = (parseInt(matrix.e) -77) +'px'
+      inp.style.top = (parseInt(matrix.f) + svgElem.offsetTop -18) +'px'
       inp.style.display = 'block'
       inp.focus()
     },
@@ -190,7 +209,7 @@ var app = (function(){
       return function(ev){
         var thisApp = this
           , cancel = canceller(ev)
-          
+        input.style.display='none'  
         svgElem.addEventListener('mouseup', cancel)
         setTimeout(function(){
           svgElem.removeEventListener('mouseup', cancel)
@@ -298,6 +317,21 @@ var app = (function(){
     run: function(parentElem){
       var thisApp = this
       svgElem = svg.createElement('svg')
+      
+      var panel = document.createElement('ul')
+      panel.id="control-panel"
+      
+      controlPanel.commands.forEach(function(item){
+        var li = document.createElement('li')
+        li.innerHTML = item
+        li.addEventListener('click', function(){
+          bus.publish('command/clear')
+        })
+        panel.appendChild(li)  
+      })
+      
+      
+      parentElem.appendChild(panel)
       parentElem.appendChild(svgElem)
       
       nodes.each(function(node){
@@ -339,4 +373,4 @@ var app = (function(){
 
 exports.app = app;
 
-}}, ['svg']);
+}}, ['svg', 'controlpanel']);

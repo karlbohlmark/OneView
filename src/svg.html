@@ -1,18 +1,17 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+  <link href="style.css" rel="stylesheet">
   <script>require = {define: function(){}}</script>
 <script src="script/lib/jquery.js"></script>
 <script src="script/lib/require/src/require.js"></script>
 <script src="script/lib/lawnchair/adaptors/LawnchairAdaptorHelpers.js"></script>
 <script src="script/lib/lawnchair/adaptors/DOMStorageAdaptor.js"></script>
 <script src="script/lib/lawnchair/Lawnchair.js"></script>
-<script src="script/svg-assets.js"></script>
-<script src="script/svg.js"></script>
-<script src="script/svgapp.js"></script>
 <script>
 
 $(function(){
+  window.requireBasePath = "script/"
   require(['svgapp'], function(svgapp){
     svgapp.app.run(document.getElementsByTagName('body')[0])
   })

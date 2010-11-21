@@ -10,6 +10,8 @@ require.define({'svg':function(require, exports, module){
     }
   }
   
+  var bus = require('eventbus').bus
+  
   var getRectangleConnectionPoints = function(fromElem, toElem){
     var fromAttr = fromElem.childNodes[0].attributes
       , toAttr = toElem.childNodes[0].attributes
@@ -74,8 +76,20 @@ require.define({'svg':function(require, exports, module){
         if(options && options.id)
           bezierPath.setAttributeNS(null, 'id', options.id)
         
+        bezierPath.addEventListener('mouseover', function(){
+          bezierPath.setAttributeNS(null, 'stroke-width', '7px')
+        })
+        bezierPath.addEventListener('mouseout', function(){
+          bezierPath.setAttributeNS(null, 'stroke-width', '5px')
+        })
+        bezierPath.addEventListener('click', function(e){
+          bus.publish('command/deleterelation', bezierPath.id)
+        })
+        
+        
     }
   };
   
   exports.svg = svg; 
-}}, []);
+  exports.getRectangleConnectionPoints = getRectangleConnectionPoints;
+}}, ['svg-assets', 'eventbus']);

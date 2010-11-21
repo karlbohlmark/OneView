@@ -1,0 +1,33 @@
+#control-panel{
+  background-color:#7ac8f5;
+  margin:0;
+  
+ 
+  
+}
+
+body{
+  margin:0;
+  
+}
+
+li:hover {
+
+  background-color:black;
+  color:white;
+  border-radius:5px;
+  border:2px solid black;
+  cursor:pointer;
+  
+}
+
+ul {
+  list-style-type:none;
+  height:25px;
+  
+}
+li {
+  float:left;
+  border:2px solid transparent;
+  
+}
