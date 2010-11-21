@@ -2,7 +2,6 @@
 <html>
 <head>
   <link href="style.css" rel="stylesheet">
-  <script>require = {define: function(){}}</script>
 <script src="script/lib/jquery.js"></script>
 <script src="script/lib/require/src/require.js"></script>
 <script src="script/lib/lawnchair/adaptors/LawnchairAdaptorHelpers.js"></script>
@@ -12,7 +11,7 @@
 
 $(function(){
   window.requireBasePath = "script/"
-  require(['svgapp'], function(svgapp){
+  require(['app'], function(svgapp){
     svgapp.app.run(document.getElementsByTagName('body')[0])
   })
 })
