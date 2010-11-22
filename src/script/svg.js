@@ -27,11 +27,12 @@ require.define({'svg':function(require, exports, module){
       , toHeight = parseInt(toAttr.height.value)
       , xdiff = (fromx - tox)
       , ydiff = (fromy - toy)
-      , fromPointx = xdiff < 0 ? fromx + fromWidth/2 : fromx - fromWidth/2
-      , fromPointy = (ydiff < 0) ? fromy : fromy
-      , toPointx = xdiff < 0 ? tox - toWidth/2 : tox + toWidth/2
-      , toPointy = toy
-    return [{x:fromPointx, y:fromPointy},{x:toPointx, y:toPointy}]
+      , vertical = (Math.abs(xdiff) < (1.25*fromWidth)) && (Math.abs(ydiff)> (fromHeight+toHeight)/2) 
+      , fromPointx = vertical ? fromx : xdiff<0 ? fromx + fromWidth/2 : fromx - fromWidth/2
+      , fromPointy = vertical ? (ydiff<0) ? (fromy + fromHeight/2) : (fromy - fromHeight/2) : fromy
+      , toPointx = vertical  ? tox : xdiff<0 ? tox - toWidth/2 : tox + toWidth/2
+      , toPointy = vertical ? (ydiff<0) ? (toy - toHeight/2) : (toy + toHeight/2) : toy
+    return [{x:fromPointx, y:fromPointy, vertical:vertical},{x:toPointx, y:toPointy}]
   }
   var svg = {
     createElement: function(elementType, attrs){
@@ -54,18 +55,41 @@ require.define({'svg':function(require, exports, module){
     drawConnection: function(point1, point2, options){
         var pathData = ["M"]
         , middle = halfway(point1, point2)
+        , vertical = point1.vertical
         pathData.push(point1.x)
         pathData.push(point1.y)
         pathData.push('q')
-        pathData.push(middle.x - point1.x)
-        pathData.push(point1.y - point1.y)
-        pathData.push(middle.x - point1.x)
-        pathData.push(middle.y - point1.y)
-        pathData.push('q')
-        pathData.push(middle.x - middle.x)
-        pathData.push(point2.y - middle.y)
-        pathData.push(point2.x - middle.x)
-        pathData.push(point2.y - middle.y)
+        
+        if(vertical){
+          pathData.push(0)
+          pathData.push(middle.y - point1.y)
+          pathData.push(middle.x - point1.x)
+          pathData.push(middle.y - point1.y)
+
+          pathData.push('q')
+          pathData.push(point2.x - middle.x)
+          pathData.push(0)
+          pathData.push(point2.x - middle.x)
+          pathData.push(point2.y - middle.y)
+        }else{
+        
+          pathData.push(middle.x - point1.x)
+          pathData.push(point1.y - point1.y)
+          pathData.push(middle.x - point1.x)
+          pathData.push(middle.y - point1.y)
+          
+          pathData.push('q')
+          pathData.push(middle.x - middle.x)
+          pathData.push(point2.y - middle.y)
+          pathData.push(point2.x - middle.x)
+          pathData.push(point2.y - middle.y)
+        }
+        
+        
+        
+        
+        
+        
         var data = pathData.join(' ')
           , bezierPath = document.createElementNS(ns.svg, 'path')
         bezierPath.setAttributeNS(null, 'fill', 'none')
