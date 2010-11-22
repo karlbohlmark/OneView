@@ -240,7 +240,26 @@ require.define({
         element.parentNode.removeChild(element)
       }
     }
+  
+    bus.subscribe('undo', function(){
+      var edit = edits.shift()
+        , undoAction
+      edit && (undoAction = undos[edit.eventName])
+      undoAction && undoAction.call(this, edit)
+      
+      bus.publish('hack/hideinput')  
+    })
     
+    bus.subscribe('init-complete', function(){
+      edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */  
+    })
+    
+    bus.subscribe('command/clear', function(){
+      nodes.nuke() && relations.nuke()
+      document.location.reload()
+    })
+
+  
     exports.setSvgElem = function(elem){
       svgElem = elem
     }
@@ -248,6 +267,9 @@ require.define({
     exports.undos = undos
     exports.actions = actions  
   }
+  
+
+  
 }, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations'])
 
   

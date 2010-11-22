@@ -14,19 +14,13 @@ var inputstate = {
 
 var nodes = require('nodes').nodes;
 var relations = require('relations').relations;
-var edits = require('edits').edits;//new Lawnchair({table:'edits'})
-
-bus.subscribe('command/clear', function(){
-  nodes.nuke() && relations.nuke()
-  document.location.reload()
-})
 
 var getRelationId = function(fromNode, toNode){
   return 'from=' + fromNode + '&to=' + toNode;
 }
 
 var app = (function(){
-  var svgElem
+  var svgElem = svg.createElement('svg')
     , handlers = {}
     , options = {
          nodeHeight : 120
@@ -37,22 +31,6 @@ var app = (function(){
   ;
   
   require('actions').setOptions(options)
-  
-  var showMenu = (function(){
-    var edit = svg.createElement('path', {'d':svgassets['edit-icon']})
-      , g = svg.createElement('g')
-    edit.setAttributeNS(null, 'style', 'display:none')
-    edit.setAttributeNS(null, 'id', 'edit-icon')
-    g.appendChild(edit)
-    return function(nodeElement){
-      if(document.getElementById('edit-icon')===null)
-        nodeElement.parentNode.parentNode.appendChild(g)
-    
-      var matrix = nodeElement.parentNode.transform.animVal.getItem(0).matrix
-      g.setAttributeNS(null, 'transform', 'translate(' + (parseInt(matrix.e) + 60) + ' ' + (parseInt(matrix.f) - 50) + ')')
-      edit.setAttributeNS(null, 'style', 'display:block')
-    }
-  })()
   
   bus.subscribe('command/deleterelation', function(id){
     relations.each(function(r){
@@ -68,32 +46,25 @@ var app = (function(){
   var trigger = require('trigger').trigger;
   
   trigger.registerHandlers(actions);
-  
-  
-  var undos = require('actions').undos
  
   return {
     run: function(parentElem){
       var thisApp = this
-      svgElem = svg.createElement('svg')
+
       require('actions').setSvgElem(svgElem)    
-      var panel = document.createElement('ul')
-      panel.id="control-panel"
-      
+      var panel = require('controls/panel').panel
+      var controlPanelView = panel()
+      controlPanelView.id = "control-panel"
+
       
       controlPanel.commands.forEach(function(item){
-        var li = document.createElement('li')
-        li.innerHTML = item
-        
-        li.addEventListener('click', function(){
-          bus.publish('command/clear')
-        })
-        
-        panel.appendChild(li)  
+        controlPanelView.addItem({title:item, action: function(){
+           bus.publish('command/clear')  
+        }})  
       })
       
       
-      parentElem.appendChild(panel)
+      parentElem.appendChild(controlPanelView.getDomElement())
       parentElem.appendChild(svgElem)
       
       nodes.each(function(node){
@@ -116,19 +87,13 @@ var app = (function(){
         }
       })
       
-      edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */
-      
+      bus.publish('init-complete')
       bus.publish('hack/hideinput')
       
       
       document.onkeydown = function(ev){
         if(ev.which=='z'.charCodeAt(0) || ev.which=='Z'.charCodeAt(0)){
-          var edit = edits.shift()
-            , undoAction
-          edit && (undoAction = undos[edit.eventName])
-          undoAction && undoAction.call(this, edit)
-          
-          bus.publish('hack/hideinput')
+          bus.publish('undo')
         }
       }
     }
@@ -137,4 +102,4 @@ var app = (function(){
 
 exports.app = app;
 
-}}, ['svg', 'controlpanel', 'actions', 'edits', 'nodes', 'trigger', 'relations']);
+}}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 'relations', 'controls/panel']);
