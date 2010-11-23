@@ -181,8 +181,18 @@ require.define({
           }, 100)
         }
       })(),
-      'select' : (function(){
+      'select' : function(){
         var selected = null
+        bus.subscribe('cancel', function(){
+          selected && selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
+          selected = null
+        })
+        
+        bus.subscribe('delete', function(){
+          selected && undos['nodecreated']({id:selected.id})
+          selected = null
+        })
+        
         return function(ev){
           var thisApp = this
            
@@ -206,7 +216,7 @@ require.define({
             selected = ev.target.parentNode
           }
         }
-      })()
+      }()
     };
     
     var undos = {
@@ -242,9 +252,11 @@ require.define({
     }
   
     bus.subscribe('undo', function(){
+      console.log('undoing')
       var edit = edits.shift()
         , undoAction
       edit && (undoAction = undos[edit.eventName])
+      console.log(edit)
       undoAction && undoAction.call(this, edit)
       
       bus.publish('hack/hideinput')  

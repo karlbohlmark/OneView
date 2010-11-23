@@ -90,16 +90,10 @@ var app = (function(){
       bus.publish('init-complete')
       bus.publish('hack/hideinput')
       
-      
-      document.onkeydown = function(ev){
-        if(ev.which=='z'.charCodeAt(0) || ev.which=='Z'.charCodeAt(0)){
-          bus.publish('undo')
-        }
-      }
     }
   };
 })();
 
 exports.app = app;
 
-}}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 'relations', 'controls/panel']);
+}}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 'relations', 'controls/panel', 'keybindings']);
