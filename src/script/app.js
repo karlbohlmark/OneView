@@ -34,16 +34,6 @@ var app = (function(){
   
   require('actions').setOptions(options)
   
-  bus.subscribe('command/deleterelation', function(id){
-    relations.each(function(r){
-      if(r.key==id){
-        relations.remove(id)
-        var el = document.getElementById(id)
-        el.parentNode.removeChild(el)
-      }
-    })
-  })
-  
   var actions = require('actions').actions;
   var trigger = require('trigger').trigger;
   
@@ -77,6 +67,10 @@ var app = (function(){
       
       relations.each(function(relation){
         if(typeof relation.push === "function" && relation.length>0) relation = relation[0]
+        trigger.apply(thisApp, ['relationcreated', relation])
+      })
+      
+      bus.subscribe('action/relationcreated', function(relation){
         trigger.apply(thisApp, ['relationcreated', relation])
       })
       

@@ -249,6 +249,20 @@ require.define({
         relations.remove(id)
         element.parentNode.removeChild(element)
       }
+      , 'relationdeleted' : function(edit){
+        var id = edit.id
+          , parts = id.split('&')
+          , from = parts[0].split('=')[1]
+          , to = parts[1].split('=')[1]
+          , relation = {
+            from :from,
+            to: to,
+            key: id
+          }
+          
+          relations.save(relation)
+          bus.publish('action/relationcreated', relation)
+      }
     }
   
     bus.subscribe('undo', function(){
@@ -261,6 +275,17 @@ require.define({
       
       bus.publish('hack/hideinput')  
     })
+    
+      bus.subscribe('command/deleterelation', function(id){
+        relations.each(function(r){
+          if(r.key==id){
+            relations.remove(id)
+            var el = document.getElementById(id)
+            el.parentNode.removeChild(el)
+            edits.unshift({eventName:'relationdeleted', id:id})
+          }
+        })
+      })
     
     bus.subscribe('init-complete', function(){
       edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */  
