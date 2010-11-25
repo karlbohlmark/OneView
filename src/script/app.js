@@ -1,5 +1,7 @@
 require.define({'app':function(require, exports, module){
 
+console.log('running app constructor')
+
 var svg = require('svg').svg,
     getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints,
     svgassets = require('svg-assets').svgassets,
@@ -50,6 +52,7 @@ var app = (function(){
   return {
     run: function(parentElem){
       var thisApp = this
+      console.log('running app.run')
 
       require('actions').setSvgElem(svgElem)    
       var panel = require('controls/panel').panel
