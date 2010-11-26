@@ -8,7 +8,8 @@ require.define({
         , bus = require('eventbus').bus
         , nodes = require('nodes').nodes
         , relations = require('relations').relations
-        , generateGuid = require('guid').generateGuid 
+        , generateGuid = require('guid').generateGuid
+        , state = require('state').state
         , options
         , svgElem
       
@@ -71,6 +72,7 @@ require.define({
         return 'from=' + fromNode + '&to=' + toNode;
       }
       
+      
       var actions = {
       'relationcreated': function(relation){
         var points = getRectangleConnectionPoints(document.getElementById(relation.from), document.getElementById(relation.to))
@@ -87,7 +89,6 @@ require.define({
         edits.unshift(ev)
       },
       'nodecreated' : function(nodeData){
-        edits.unshift(nodeData)
         var g = svg.createElement('g', {id: nodeData.id})
           , rect = svg.createElement('rect', facet('rx', 'ry', 'width', 'height', 'fill', 'stroke', 'stroke-width')(nodeData))
           , text = svg.createElement('text', {'text-anchor': 'middle', 'dominant-baseline': 'ideographic', 'font-size':'22', 'pointer-events': 'none'})
@@ -99,7 +100,7 @@ require.define({
         })
         g.appendChild(rect)
         g.appendChild(text)
-        text.textContent = nodeData.text
+        text.textContent = nodeData.text || ''
         svgElem.appendChild(g)
         var inp = getSpeechInput()
         inp.id="theinput"
@@ -133,6 +134,7 @@ require.define({
         props.key = props.id
         nodes.save(props)
         trigger.apply(this, ['nodecreated', props])
+        edits.unshift(props)
       },
       'drag' : (function(){
         var canceller = function(ev){
@@ -181,42 +183,29 @@ require.define({
           }, 100)
         }
       })(),
-      'select' : function(){
-        var selected = null
-        bus.subscribe('cancel', function(){
-          selected && selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
-          selected = null
-        })
-        
-        bus.subscribe('delete', function(){
-          selected && undos['nodecreated']({id:selected.id})
-          selected = null
-        })
-        
-        return function(ev){
-          var thisApp = this
-           
-          if(selected){
-            var to = ev.target.parentNode
-              , key = getRelationId(selected.id, to.id)
-              , relation = {
-                  key: key
-                , from : selected.id
-                , to: to.id
-              }
-            ;
-            relations.save(relation)
-            trigger.apply(thisApp, ['relationcreated', relation])
-            edits.unshift({eventName:'relationcreated', from: relation.from, to:relation.to, key: key})
-            selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
-            selected = null
-          }else{
-            var rect = ev.target
-            rect.setAttributeNS(null, "stroke-width", '7px')
-            selected = ev.target.parentNode
-          }
+      'select' : function(ev){
+        var thisApp = this
+          , selected = state.selected
+        if(selected){
+          var to = ev.target.parentNode
+            , key = getRelationId(selected.id, to.id)
+            , relation = {
+                key: key
+              , from : selected.id
+              , to: to.id
+            }
+          ;
+          relations.save(relation)
+          trigger.apply(thisApp, ['relationcreated', relation])
+          edits.unshift({eventName:'relationcreated', from: relation.from, to:relation.to, key: key})
+          selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
+          state.selected = null
+        }else{
+          var rect = ev.target
+          rect.setAttributeNS(null, "stroke-width", '7px')
+          state.selected = ev.target.parentNode
         }
-      }()
+      }
     };
     
     var undos = {
@@ -238,10 +227,8 @@ require.define({
       }
       , 'nodecreated' : function(edit){
         var id = edit.id
-          , element = document.getElementById(id)
-         
-        element.parentNode.removeChild(element)
-        nodes.remove(id)
+        modelAction.removeNode(id)
+        uiAction.removeNode(id)
       }
       , 'relationcreated' : function(edit){
         var id = edit.key
@@ -263,29 +250,101 @@ require.define({
           relations.save(relation)
           bus.publish('action/relationcreated', relation)
       }
+      , 'deletenode' : function(edit){
+        modelAction.createNode(edit)
+        actions.nodecreated(edit)
+      }
+    }
+    
+    var modelAction = {
+      removeNode : function(id){
+        nodes.remove(id)
+      }
+      , createNode: function(n){
+        nodes.save(n) 
+      }
+      , deleteRelation: function(id){
+        relations.remove(id)
+      }
+    }
+    
+    var uiAction = {
+      removeNode: function(id){
+        var element = document.getElementById(id)
+        element.parentNode.removeChild(element)
+      },
+      deleteRelation: function(id){
+        var el = document.getElementById(id)
+        el.parentNode.removeChild(el)
+      }
     }
   
     bus.subscribe('undo', function(){
       console.log('undoing')
       var edit = edits.shift()
         , undoAction
-      edit && (undoAction = undos[edit.eventName])
+      if(!edit) return
+     
       console.log(edit)
-      undoAction && undoAction.call(this, edit)
+      
+      if(Array.isArray(edit)){
+        var length=edit.length
+        for(var i=0;i<length;i++)
+        {
+          undoAction = undos[edit[i].eventName]
+          undoAction && undoAction.call(this, edit[i])
+        }
+      }else{
+        undoAction = undos[edit.eventName]
+        undoAction && undoAction.call(this, edit)
+      }
       
       bus.publish('hack/hideinput')  
     })
     
-      bus.subscribe('command/deleterelation', function(id){
+    bus.subscribe('command/deleterelation', function(id){
+      modelAction.deleteRelation(id)
+      uiAction.deleteRelation(id)  
+      edits.unshift({eventName:'relationdeleted', id:id})
+    })
+    
+    bus.subscribe('cancel', function(){
+      var selected = state.selected
+      selected && selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
+      state.selected = null
+    })
+        
+    bus.subscribe('delete', function(){
+      var id = state.selected.id
+      if(!id) return
+      nodes.get(id, function(node){
+        var rels = []
         relations.each(function(r){
-          if(r.key==id){
-            relations.remove(id)
-            var el = document.getElementById(id)
-            el.parentNode.removeChild(el)
-            edits.unshift({eventName:'relationdeleted', id:id})
+          if(r.from==id || r.to==id){ 
+            modelAction.deleteRelation(r.key)
+            uiAction.deleteRelation(r.key)
+            rels.push(r)
           }
         })
+        
+        
+        node.eventName = 'deletenode'
+        for(var i in rels){
+          rels[i].eventName = 'relationdeleted'
+          rels[i].id= rels[i].key
+        }
+        
+        var log = [node]
+        log = log.concat(rels)
+        
+        edits.unshift(log)  
       })
+      //Ok, ite might be strange with the edit being appended async while the other action is sync...
+      modelAction.removeNode(id)
+      uiAction.removeNode(id)
+      
+      state.selected = null
+    })
     
     bus.subscribe('init-complete', function(){
       edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */  
@@ -307,6 +366,6 @@ require.define({
   
 
   
-}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations'])
+}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state'])
 
   
