@@ -12,6 +12,7 @@ require.define({
         , state = require('state').state
         , options
         , svgElem
+        , keyboard = require('keyboard').keyboard
       
       var getNodeRelations = function(id){
         var nodeRelations = []
@@ -21,6 +22,11 @@ require.define({
           }
         })
         return nodeRelations
+      }
+      
+      var getNodePosition = function(n){
+        var matrix = n.transform.animVal.getItem(0).matrix
+        return {x:matrix.e, y:matrix.f}
       }
       
       var moveElement = function(x, y, element, nodeRelations, app){
@@ -105,10 +111,10 @@ require.define({
         var inp = getSpeechInput()
         inp.id="theinput"
         inp.setAttribute('data-target', g.id)
-        var matrix = g.transform.animVal.getItem(0).matrix
+        var pos = getNodePosition(g)
         inp.value = ''
-        inp.style.left = (parseInt(matrix.e) -77) +'px'
-        inp.style.top = (parseInt(matrix.f) + svgElem.offsetTop -18) +'px'
+        inp.style.left = (parseInt(pos.x) -77) +'px'
+        inp.style.top = (parseInt(pos.y) + svgElem.offsetTop -18) +'px'
         inp.style.display = 'block'
         inp.focus()
       },
@@ -180,7 +186,7 @@ require.define({
               document.onmousemove = null
               document.onmouseup = null
             }
-          }, 100)
+          }, 120)
         }
       })(),
       'select' : function(ev){
@@ -346,6 +352,36 @@ require.define({
       state.selected = null
     })
     
+    var move = function(direction){
+      if(!state.selected) return
+      var id = state.selected.id
+      var node = document.getElementById(id)
+      var pos = getNodePosition(node)
+      var relations = getNodeRelations(id)
+      posTransforms[direction](pos)
+      moveElement(pos.x, pos.y, node, relations, {});
+    }
+    
+    var posTransforms ={
+      'down' : function(pos){
+        pos.y+= (keyboard.modifiers.ctrl ? 10: 1)
+      },
+      'up' : function(pos){
+        pos.y-= (keyboard.modifiers.ctrl ? 10: 1)
+      },
+      'left' : function(pos){
+        pos.x-= (keyboard.modifiers.ctrl ? 10: 1)
+      },
+      'right' : function(pos){
+        pos.x+= (keyboard.modifiers.ctrl ? 10: 1)
+      }
+    }
+    
+    for(var transform in posTransforms){
+      if(posTransforms.hasOwnProperty(transform))
+        bus.subscribe(transform, function(transform){ return function(){move(transform)}}(transform))
+    }
+    
     bus.subscribe('init-complete', function(){
       edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */  
     })
@@ -366,6 +402,6 @@ require.define({
   
 
   
-}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state'])
+}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state', 'keyboard'])
 
   

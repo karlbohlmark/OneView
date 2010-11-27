@@ -9,14 +9,32 @@ require.define({
       until && (removalEventMapping[until] || (removalEventMapping[until]=[])).push(handler)
     }
     
+    var modifiers = {
+      ctrl: false,
+      alt: false
+    }
+    
+    document.onkeydown = function(ev){
+      if(ev.which == 17)
+        modifiers.ctrl = true
+      if(ev.which == 18)
+        modifiers.alt = true
+    }
+    
     document.onkeyup = function(ev){
+      if(ev.which==17)
+        modifiers.ctrl = false
+      if(ev.which==18)
+        modifiers.alt = false
+      
       for(var i= keyupHandlers.length;i--;){
         keyupHandlers[i](ev)
       }
     }
     
     exports.keyboard = {
-      keyup: keyup
+      keyup: keyup,
+      modifiers: modifiers
     }
   }
-}, ['eventbus'])
+}, ['eventbus', 'state'])

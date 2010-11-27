@@ -5,11 +5,19 @@ require.define({'keybindings': function(require, exports, module){
   var keyMeanings = {
     'Z' : 'undo',
     'esc' : 'cancel',
-    'D': 'delete'
+    'D': 'delete',
+    'left': 'left',
+    'right': 'right',
+    'up': 'up',
+    'down': 'down'
   }
   
   var specialKeyCodes = {
     'esc': 27,
+    'left': 37,
+    'up': 38,
+    'right' : 39,
+    'down' : 40
   }
   
   var keyMappings = {}
