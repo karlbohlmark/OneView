@@ -181,8 +181,8 @@ require.define({
             document.onmousemove = dragElement
             
             document.onmouseup = function(ev){
-              var matrix = element.parentNode.transform.animVal.getItem(0).matrix
-              trigger.apply(thisApp, ['nodemoved', {key: element.parentNode.id, x: matrix.e, y: matrix.f, oldx:oldx, oldy:oldy}])
+              var pos = getNodePosition(element.parentNode)
+              trigger.apply(thisApp, ['nodemoved', {key: element.parentNode.id, x: pos.x, y: pos.y, oldx:oldx, oldy:oldy}])
               document.onmousemove = null
               document.onmouseup = null
             }
