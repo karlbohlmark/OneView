@@ -20,6 +20,7 @@ require.define({
         
         input.value = ""
       }
+      ev.stopPropagation()
     }
     
     exports.input = input

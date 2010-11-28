@@ -77,15 +77,17 @@ require.define({
         bus.publish('nodecreated', edit)
       }
     }
+    
+    var undoing = false
         
     bus.subscribe('undo', function(){
       console.log('undoing')
       var edit = edits.shift()
         , undoAction
       if(!edit) return
-     
-      console.log(edit)
       
+      console.log(edit)
+      undoing = true
       if(Array.isArray(edit)){
         var length=edit.length
         for(var i=0;i<length;i++)
@@ -97,11 +99,13 @@ require.define({
         undoAction = undos[edit.eventName]
         undoAction && undoAction.call(this, edit)
       }
+      undoing = false
       
       bus.publish('hack/hideinput')  
     })
     
     bus.subscribe('nodecreated', function(n){
+      if(undoing) return
       n.eventName = 'nodecreated'
       edits.unshift(n)
     })
