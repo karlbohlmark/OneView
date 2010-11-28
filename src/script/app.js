@@ -24,17 +24,8 @@ var getRelationId = function(fromNode, toNode){
 var app = (function(){
   var svgElem = svg.createElement('svg')
     , handlers = {}
-    , options = {
-         nodeHeight : 120
-       , nodeWidth  : 200
-       , nodeColor  : '#202020'
-       , nodeFill   : '#efefef'
-      }
-  ;
   
   svgElem.appendChild(svg.defs)
-  
-  require('actions').setOptions(options)
   
   var actions = require('actions').actions;
   var trigger = require('trigger').trigger;
@@ -46,7 +37,9 @@ var app = (function(){
       var thisApp = this
       console.log('running app.run')
 
-      require('actions').setSvgElem(svgElem)    
+      require('actions').setSvgElem(svgElem)
+      require('uiaction').setSvgElem(svgElem)
+      
       var panel = require('controls/panel').panel
       var controlPanelView = panel()
       controlPanelView.id = "control-panel"
@@ -80,7 +73,7 @@ var app = (function(){
         if(ev.which!=1) return
         if(ev.target.toString().match(/SVGSVGElement/)!==null)
         {
-          trigger.apply(thisApp, ['createnode', {x:ev.pageX, y: ev.pageY}])
+          bus.publish('workspaceclicked', {x:ev.pageX, y: ev.pageY})
         }else{
           trigger.apply(thisApp, ['drag', {target: ev.target}])
         }
@@ -95,4 +88,5 @@ var app = (function(){
 
 exports.app = app;
 
-}}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 'relations', 'controls/panel', 'keybindings']);
+}}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 
+    'relations', 'controls/panel', 'keybindings', 'undo', 'uiaction']);

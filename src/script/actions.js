@@ -12,7 +12,8 @@ require.define({
         , state = require('state').state
         , showMenu = require('controls/nodemenu').showMenu
         , titleInput = require('controls/titleinput').input
-        , options
+        , uiAction = require('uiaction').uiAction
+        , modelAction = require('modelaction').modelAction
         , svgElem
         , keyboard = require('keyboard').keyboard
       
@@ -68,55 +69,7 @@ require.define({
           nodes.save(n)
         })
         edits.unshift(ev)
-      },
-      'nodecreated' : function(nodeData){
-        var g = svg.createElement('g', {id: nodeData.id})
-          , rect = svg.createElement('rect', facet('rx', 'ry', 'width', 'height', 'fill', 'stroke', 'stroke-width')(nodeData))
-          , text = svg.createElement('text', {'text-anchor': 'middle', 'dominant-baseline': 'ideographic', 'font-size':'22', 'pointer-events': 'none'})
-        g.setAttributeNS(null, 'transform', 'translate(' + nodeData.x + ' ' + nodeData.y +')')
-        rect.setAttributeNS(null, 'x', -nodeData.width/2)
-        rect.setAttributeNS(null, 'y', -nodeData.height/2)
-        rect.addEventListener('mouseover', function(ev){
-          //showMenu.call(this, rect)
-        })
-        g.appendChild(rect)
-        g.appendChild(text)
-        text.textContent = nodeData.text || ''
-        svgElem.appendChild(g)
-        var inp = titleInput
-        inp.id="theinput"
-        inp.setAttribute('data-target', g.id)
-        var pos = getNodePosition(g)
-        inp.value = ''
-        inp.style.left = (parseInt(pos.x) -77) +'px'
-        inp.style.top = (parseInt(pos.y) + svgElem.offsetTop -18) +'px'
-        inp.style.display = 'block'
-        inp.focus()
-      },
-      'createnode' : createnode = function(where){
-        var x = where.x
-          , y = where.y
-          , height = options.nodeHeight
-          , width = options.nodeWidth
-          , color = options.nodeColor
-        ;
-        var props = {
-          "x": x,
-          "y": y ,
-          "rx": 20,
-          "ry": 20,
-          "width": width,
-          "height": height,
-          "fill": options.nodeFill,
-          "stroke": color,
-          "stroke-width": '5',
-          "id": generateGuid() 
-        }      
-        props.key = props.id
-        nodes.save(props)
-        trigger.apply(this, ['nodecreated', props])
-        edits.unshift(props)
-      },
+      }, 
       'drag' : (function(){
         var canceller = function(ev){
           return function(){
@@ -188,101 +141,7 @@ require.define({
         }
       }
     };
-    
-    var undos = {
-      'nodemoved' : function(edit){
-        var element = document.getElementById(edit.key)
-        var id = edit.key
-          , nodeRelations = getNodeRelations(id)
           
-        nodes.get(id, function(node){
-          node.x = edit.oldx
-          node.y = edit.oldy
-          nodes.save(node)
-        })
-        
-        moveElement(parseInt(edit.oldx), 
-          parseInt(edit.oldy), 
-          element, nodeRelations, this
-        )
-      }
-      , 'nodecreated' : function(edit){
-        var id = edit.id
-        modelAction.removeNode(id)
-        uiAction.removeNode(id)
-      }
-      , 'relationcreated' : function(edit){
-        var id = edit.key
-          , element = document.getElementById(id)
-        relations.remove(id)
-        element.parentNode.removeChild(element)
-      }
-      , 'relationdeleted' : function(edit){
-        var id = edit.id
-          , parts = id.split('&')
-          , from = parts[0].split('=')[1]
-          , to = parts[1].split('=')[1]
-          , relation = {
-            from :from,
-            to: to,
-            key: id
-          }
-          
-          relations.save(relation)
-          bus.publish('action/relationcreated', relation)
-      }
-      , 'deletenode' : function(edit){
-        modelAction.createNode(edit)
-        actions.nodecreated(edit)
-      }
-    }
-    
-    var modelAction = {
-      removeNode : function(id){
-        nodes.remove(id)
-      }
-      , createNode: function(n){
-        nodes.save(n) 
-      }
-      , deleteRelation: function(id){
-        relations.remove(id)
-      }
-    }
-    
-    var uiAction = {
-      removeNode: function(id){
-        var element = document.getElementById(id)
-        element.parentNode.removeChild(element)
-      },
-      deleteRelation: function(id){
-        var el = document.getElementById(id)
-        el.parentNode.removeChild(el)
-      }
-    }
-  
-    bus.subscribe('undo', function(){
-      console.log('undoing')
-      var edit = edits.shift()
-        , undoAction
-      if(!edit) return
-     
-      console.log(edit)
-      
-      if(Array.isArray(edit)){
-        var length=edit.length
-        for(var i=0;i<length;i++)
-        {
-          undoAction = undos[edit[i].eventName]
-          undoAction && undoAction.call(this, edit[i])
-        }
-      }else{
-        undoAction = undos[edit.eventName]
-        undoAction && undoAction.call(this, edit)
-      }
-      
-      bus.publish('hack/hideinput')  
-    })
-    
     bus.subscribe('titlegiven', function(ev){
       var target = ev.target
         , value = ev.value
@@ -385,13 +244,14 @@ require.define({
     exports.setSvgElem = function(elem){
       svgElem = elem
     }
-    exports.setOptions = function(o){options=o}
-    exports.undos = undos
+    
     exports.actions = actions  
   }
   
 
   
-}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state', 'keyboard', 'controls/nodemenu', 'controls/titleinput'])
+}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 
+  'relations', 'state', 'keyboard', 'controls/nodemenu', 
+  'controls/titleinput', 'uiaction', 'modelaction'])
 
   

@@ -1,4 +1,7 @@
 require.define({'facet': function(require, exports, module){
+  /***
+   * 
+   */
   var facet = function(/*varargs*/){
     var args = arguments
     return function(obj){
