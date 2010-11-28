@@ -11,6 +11,7 @@ require.define({
         , generateGuid = require('guid').generateGuid
         , state = require('state').state
         , showMenu = require('controls/nodemenu').showMenu
+        , titleInput = require('controls/titleinput').input
         , options
         , svgElem
         , keyboard = require('keyboard').keyboard
@@ -40,39 +41,12 @@ require.define({
         }
       }
         
-        var input, getSpeechInput = function(){ 
-          if(input) return input
-          input = document.createElement('input')
-          input.style.position = 'absolute'
-          input.style.display = 'none'
-          input.style.borderRadius = '7px'
-          input.style.opacity = 1
-          input.setAttribute('x-webkit-speech', '')
-          input.style.width = '152px'
-          input.style.fontSize = "20px"
-          input.style.height = '30px'
-          input.onkeyup = function(ev){
-            if(ev.which==13){ 
-              this.style.display = 'none'
-              var target = this.getAttribute('data-target')
-                , node = document.getElementById(target)
-                , text =node.childNodes[1]
-                , oldText = text.textContent
-              text.textContent =  input.value
-              nodes.get(target, function(n){
-                n.text = input.value
-                nodes.save(n)
-              })
-              edits.unshift({'eventName' : 'changetext', 'oldText':oldText, 'newText':input.value})
-              input.value = ""
-            }
-          }
-          document.body.appendChild(input)
-          return input
-        }
+
+      document.body.appendChild(titleInput)
+         
         
       bus.subscribe('hack/hideinput', function(){
-        input && (input.style.display = "none")
+        titleInput && (titleInput.style.display = "none")
       })
             
       var getRelationId = function(fromNode, toNode){
@@ -109,7 +83,7 @@ require.define({
         g.appendChild(text)
         text.textContent = nodeData.text || ''
         svgElem.appendChild(g)
-        var inp = getSpeechInput()
+        var inp = titleInput
         inp.id="theinput"
         inp.setAttribute('data-target', g.id)
         var pos = getNodePosition(g)
@@ -153,7 +127,7 @@ require.define({
         return function(ev){
           var thisApp = this
             , cancel = canceller(ev)
-          input.style.display='none'  
+          titleInput.style.display='none'  
           svgElem.addEventListener('mouseup', cancel)
           setTimeout(function(){
             svgElem.removeEventListener('mouseup', cancel)
@@ -309,6 +283,21 @@ require.define({
       bus.publish('hack/hideinput')  
     })
     
+    bus.subscribe('titlegiven', function(ev){
+      var target = ev.target
+        , value = ev.value
+        , node = document.getElementById(target)
+        , text =node.childNodes[1]
+        , oldText = text.textContent
+      text.textContent =  value
+      nodes.get(ev.target, function(n){
+        n.text = value
+        nodes.save(n)
+      })
+      
+      edits.unshift({'eventName' : 'changetext', 'oldText':oldText, 'newText':value})
+    })
+    
     bus.subscribe('command/deleterelation', function(id){
       modelAction.deleteRelation(id)
       uiAction.deleteRelation(id)  
@@ -403,6 +392,6 @@ require.define({
   
 
   
-}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state', 'keyboard', 'controls/nodemenu'])
+}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state', 'keyboard', 'controls/nodemenu', 'controls/titleinput'])
 
   
