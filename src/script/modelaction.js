@@ -38,8 +38,22 @@ require.define({
         props.key = props.id
         nodes.save(props)
         bus.publish('nodecreated', props)
+      },
+      moveNode : function(ev){
+        nodes.get(ev.key, function(n){
+          n.x = ev.x
+          n.y = ev.y
+          nodes.save(n)
+        })
+        bus.publish('nodemoved', ev)
       }
     }
+    
+      
+    
+    bus.subscribe('nodedropped', function(ev){
+      modelAction.moveNode(ev) 
+    })
     
     bus.subscribe('workspaceclicked', function(where){
       modelAction.createnode(where)

@@ -58,60 +58,53 @@ require.define({
       }
       
       var actions = {
-      'nodemoved' : function(ev){
-        nodes.get(ev.key, function(n){
-          n.x = ev.x
-          n.y = ev.y
-          nodes.save(n)
-        })
-        edits.unshift(ev)
-      },
-      drag : (function(){
-        var canceller = function(ev){
-          return function(){
-              ev.cancelled = true
+        drag : (function(){
+          var canceller = function(ev){
+            return function(){
+                ev.cancelled = true
+            }
           }
-        }
-         
-        return function(ev){
-          var thisApp = this
-            , cancel = canceller(ev)
-          titleInput.style.display='none'  
-          svgElem.addEventListener('mouseup', cancel)
-          setTimeout(function(){
-            svgElem.removeEventListener('mouseup', cancel)
-            if(ev.cancelled){
-              return bus.publish('elementselected', ev.target)
-            }
-            
-            var element = ev.target
-              , g = element.parentNode
-              , rect = g.childNodes[0]
-              , id = g.getAttributeNS(null, 'id')
-              , nodeRelations = getNodeRelations(id)
-              , matrix = g.transform.animVal.getItem(0).matrix
-              , oldx =  matrix.e
-              , oldy = matrix.f
-            ;
-            
-            
-            var dragElement = (function(element, nodeRelations){
-              return function(ev){
-                moveElement(ev.x, ev.y, g, nodeRelations)
+          return function(ev){
+            var thisApp = this
+              , cancel = canceller(ev)
+            titleInput.style.display='none'  
+            svgElem.addEventListener('mouseup', cancel)
+            setTimeout(function(){
+              svgElem.removeEventListener('mouseup', cancel)
+              if(ev.cancelled){
+                return bus.publish('elementselected', ev.target)
               }
-            })(element, nodeRelations)
-            
-            document.onmousemove = dragElement
-            
-            document.onmouseup = function(ev){
-              var pos = getNodePosition(element.parentNode)
-              trigger.apply(thisApp, ['nodemoved', {key: element.parentNode.id, x: pos.x, y: pos.y, oldx:oldx, oldy:oldy}])
-              document.onmousemove = null
-              document.onmouseup = null
-            }
-          }, 120)
-        }
-      })(),
+              
+              var element = ev.target
+                , g = element.parentNode
+                , rect = g.childNodes[0]
+                , id = g.getAttributeNS(null, 'id')
+                , nodeRelations = getNodeRelations(id)
+                , matrix = g.transform.animVal.getItem(0).matrix
+                , oldx =  matrix.e
+                , oldy = matrix.f
+              ;
+              
+              
+              var dragElement = (function(element, nodeRelations){
+                return function(ev){
+                  moveElement(ev.x, ev.y, g, nodeRelations)
+                }
+              })(element, nodeRelations)
+              
+              document.onmousemove = dragElement
+              
+              document.onmouseup = function(ev){
+                var pos = getNodePosition(element.parentNode)
+                
+                bus.publish('nodedropped', {key: element.parentNode.id, x: pos.x, y: pos.y, oldx:oldx, oldy:oldy})
+                
+                document.onmousemove = null
+                document.onmouseup = null
+              }
+            }, 120)
+          }
+        })(),
       'select' : function(target){
         var selected = state.selected
         if(selected){

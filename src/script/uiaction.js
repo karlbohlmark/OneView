@@ -7,16 +7,7 @@ require.define({
       , relations = require('relations').relations
       , getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints
       , svgElem
-    
-     var getNodeRelations = function(id){
-        var nodeRelations = []
-        relations.each(function(r){
-          if(r.from == id || r.to == id){
-            nodeRelations.push(r)
-          }
-        })
-        return nodeRelations
-      }
+
     
     var getNodePosition = function(n){
       var matrix = n.transform.animVal.getItem(0).matrix

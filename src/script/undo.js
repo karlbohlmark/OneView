@@ -104,6 +104,11 @@ require.define({
       bus.publish('hack/hideinput')  
     })
     
+    bus.subscribe('nodemoved', function(ev){
+      ev.eventName = 'nodemoved'
+      edits.unshift(ev)
+    })
+    
     bus.subscribe('nodecreated', function(n){
       if(undoing) return
       n.eventName = 'nodecreated'
