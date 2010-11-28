@@ -12,6 +12,8 @@ require.define({
     input.style.fontSize = "20px"
     input.style.height = '30px'
     input.onkeyup = function(ev){
+      if(this.style.display=='none') return
+      
       if(ev.which==13){ 
         this.style.display = 'none'
         var target = this.getAttribute('data-target')
