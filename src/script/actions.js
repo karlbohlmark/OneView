@@ -32,13 +32,16 @@ require.define({
         return {x:matrix.e, y:matrix.f}
       }
       
-      var moveElement = function(x, y, element, nodeRelations, app){
+      var moveElement = function(x, y, element, nodeRelations){
         element.setAttributeNS(null, "transform", 'translate(' + x +' ' + y +')')
         for(var r in nodeRelations){
           r = nodeRelations[r]
           var path = document.getElementById(r.key)
+          if(path==null)
+            throw "no path matching: " + r.key
           path.parentNode.removeChild(path)
-          trigger.apply(app, ['relationcreated', r])
+          
+          bus.publish('relationcreated', r)
         }
       }
         
@@ -54,14 +57,7 @@ require.define({
         return 'from=' + fromNode + '&to=' + toNode;
       }
       
-      
       var actions = {
-      'relationcreated': function(relation){
-        var points = getRectangleConnectionPoints(document.getElementById(relation.from), document.getElementById(relation.to))
-        var id = getRelationId(relation.from, relation.to)
-        points.push({id:id})
-        svg.drawConnection.apply(svgElem, points)
-      },
       'nodemoved' : function(ev){
         nodes.get(ev.key, function(n){
           n.x = ev.x
@@ -69,8 +65,8 @@ require.define({
           nodes.save(n)
         })
         edits.unshift(ev)
-      }, 
-      'drag' : (function(){
+      },
+      drag : (function(){
         var canceller = function(ev){
           return function(){
               ev.cancelled = true
@@ -85,8 +81,7 @@ require.define({
           setTimeout(function(){
             svgElem.removeEventListener('mouseup', cancel)
             if(ev.cancelled){
-              trigger.apply(thisApp, ['select', ev])
-              return
+              return bus.publish('elementselected', ev.target)
             }
             
             var element = ev.target
@@ -100,11 +95,11 @@ require.define({
             ;
             
             
-            var dragElement = (function(element, nodeRelations, app){
+            var dragElement = (function(element, nodeRelations){
               return function(ev){
-                moveElement(ev.x, ev.y, g, nodeRelations, app)
+                moveElement(ev.x, ev.y, g, nodeRelations)
               }
-            })(element, nodeRelations, thisApp)
+            })(element, nodeRelations)
             
             document.onmousemove = dragElement
             
@@ -117,30 +112,39 @@ require.define({
           }, 120)
         }
       })(),
-      'select' : function(ev){
-        var thisApp = this
-          , selected = state.selected
+      'select' : function(target){
+        var selected = state.selected
         if(selected){
-          var to = ev.target.parentNode
+          var to = target.parentNode
             , key = getRelationId(selected.id, to.id)
             , relation = {
                 key: key
               , from : selected.id
               , to: to.id
             }
-          ;
           relations.save(relation)
-          trigger.apply(thisApp, ['relationcreated', relation])
+          
+          bus.publish('relationcreated', relation)
+          
           edits.unshift({eventName:'relationcreated', from: relation.from, to:relation.to, key: key})
           selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
           state.selected = null
         }else{
-          var rect = ev.target
+          var rect = target
           rect.setAttributeNS(null, "stroke-width", '7px')
-          state.selected = ev.target.parentNode
+          state.selected = rect.parentNode
         }
       }
     };
+
+
+    bus.subscribe('elementclicked', function(ev){
+      actions.drag(ev)
+    })
+
+    bus.subscribe('elementselected', function(target){
+      actions.select(target)
+    })
           
     bus.subscribe('titlegiven', function(ev){
       var target = ev.target

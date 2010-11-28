@@ -4,13 +4,28 @@ require.define({
       , svg = require('svg').svg
       , facet = require('facet').facet
       , titleInput = require('controls/titleinput').input
+      , relations = require('relations').relations
+      , getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints
       , svgElem
     
-    
-      var getNodePosition = function(n){
-        var matrix = n.transform.animVal.getItem(0).matrix
-        return {x:matrix.e, y:matrix.f}
+     var getNodeRelations = function(id){
+        var nodeRelations = []
+        relations.each(function(r){
+          if(r.from == id || r.to == id){
+            nodeRelations.push(r)
+          }
+        })
+        return nodeRelations
       }
+    
+    var getNodePosition = function(n){
+      var matrix = n.transform.animVal.getItem(0).matrix
+      return {x:matrix.e, y:matrix.f}
+    }
+    
+    var getRelationId = function(fromNode, toNode){
+      return 'from=' + fromNode + '&to=' + toNode;
+    }
     
     var uiAction = {
       removeNode: function(id){
@@ -44,8 +59,18 @@ require.define({
         inp.style.top = (parseInt(pos.y) + svgElem.offsetTop -18) +'px'
         inp.style.display = 'block'
         inp.focus()
+      },
+       relationCreated : function(relation){
+        var points = getRectangleConnectionPoints(document.getElementById(relation.from), document.getElementById(relation.to))
+        var id = getRelationId(relation.from, relation.to)
+        points.push({id:id})
+        svg.drawConnection.apply(svgElem, points)
       }
     }
+    
+    bus.subscribe('relationcreated', function(relation){
+      uiAction.relationCreated(relation)
+    })
     
     bus.subscribe('nodecreated', function(node){
       uiAction.createNode(node)
@@ -54,4 +79,4 @@ require.define({
     exports.uiAction = uiAction
     exports.setSvgElem = function(s){svgElem = s}
   }
-}, ['eventbus', 'svg', 'controls/titleinput'])
+}, ['eventbus', 'svg', 'controls/titleinput', 'relations'])

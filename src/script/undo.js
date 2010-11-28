@@ -24,7 +24,7 @@ require.define({
         r = nodeRelations[r]
         var path = document.getElementById(r.key)
         path.parentNode.removeChild(path)
-        trigger.apply(app, ['relationcreated', r])
+        bus.publish('relationcreated', r)
       }
     }
    
@@ -40,9 +40,11 @@ require.define({
           nodes.save(node)
         })
         
-        moveElement(parseInt(edit.oldx), 
+        moveElement(
+          parseInt(edit.oldx), 
           parseInt(edit.oldy), 
-          element, nodeRelations, this
+          element, 
+          nodeRelations
         )
       }
       , 'nodecreated' : function(edit){
@@ -72,7 +74,7 @@ require.define({
       }
       , 'deletenode' : function(edit){
         modelAction.createNode(edit)
-        actions.nodecreated(edit)
+        bus.publish('nodecreated', edit)
       }
     }
         

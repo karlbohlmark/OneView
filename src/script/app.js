@@ -57,16 +57,16 @@ var app = (function(){
       
       nodes.each(function(node){
         if(typeof node.push === "function" && node.length>0) node = node[0]
-        trigger.apply(thisApp, ['nodecreated', node])
+        bus.publish('nodecreated', node)
       })
       
       relations.each(function(relation){
         if(typeof relation.push === "function" && relation.length>0) relation = relation[0]
-        trigger.apply(thisApp, ['relationcreated', relation])
+        bus.publish('relationcreated', relation)
       })
       
       bus.subscribe('action/relationcreated', function(relation){
-        trigger.apply(thisApp, ['relationcreated', relation])
+        bus.publish('relationcreated', relation)
       })
       
       svgElem.addEventListener('mousedown', function(ev){
@@ -75,7 +75,7 @@ var app = (function(){
         {
           bus.publish('workspaceclicked', {x:ev.pageX, y: ev.pageY})
         }else{
-          trigger.apply(thisApp, ['drag', {target: ev.target}])
+          bus.publish('elementclicked', ev)
         }
       })
       
