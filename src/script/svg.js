@@ -95,6 +95,8 @@ require.define({'svg':function(require, exports, module){
         bezierPath.setAttributeNS(null, 'fill', 'none')
         bezierPath.setAttributeNS(null, 'stroke', '#000000')
         bezierPath.setAttributeNS(null, 'stroke-width', '5px')
+        bezierPath.setAttributeNS(null, 'marker-end', 'url(#arrowHead)')
+        
         this.appendChild(bezierPath)
         bezierPath.setAttributeNS(null, 'd', data)
         if(options && options.id)

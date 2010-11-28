@@ -10,6 +10,7 @@ require.define({
         , relations = require('relations').relations
         , generateGuid = require('guid').generateGuid
         , state = require('state').state
+        , showMenu = require('controls/nodemenu').showMenu
         , options
         , svgElem
         , keyboard = require('keyboard').keyboard
@@ -402,6 +403,6 @@ require.define({
   
 
   
-}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state', 'keyboard'])
+}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 'relations', 'state', 'keyboard', 'controls/nodemenu'])
 
   

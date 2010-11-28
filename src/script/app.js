@@ -23,6 +23,8 @@ var getRelationId = function(fromNode, toNode){
 
 var app = (function(){
   var svgElem = svg.createElement('svg')
+    , defs = svg.createElement('defs')
+    , arrow = svg.createElement('marker')
     , handlers = {}
     , options = {
          nodeHeight : 120
@@ -31,6 +33,21 @@ var app = (function(){
        , nodeFill   : '#efefef'
       }
   ;
+  
+  arrow.id = 'arrowHead'
+  arrow.setAttributeNS(null, 'markerUnits', 'strokeWidth')
+  arrow.setAttributeNS(null, 'orient', 'auto')
+  arrow.setAttributeNS(null, 'markerWidth', '4')
+  arrow.setAttributeNS(null, 'markerHeight', '3')
+  arrow.setAttributeNS(null, 'viewBox', '0 0 10 10')
+  arrow.setAttributeNS(null, 'refX', '0')
+  arrow.setAttributeNS(null, 'refY', '5')
+  var triangle = svg.createElement('path')
+  triangle.setAttributeNS(null, 'd','M 0 0 L 10 5 L 0 10 z')
+  arrow.appendChild(triangle)
+  defs.appendChild(arrow)
+  
+  svgElem.appendChild(defs)
   
   require('actions').setOptions(options)
   
