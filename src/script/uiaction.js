@@ -66,8 +66,11 @@ require.define({
     bus.subscribe('nodecreated', function(node){
       uiAction.createNode(node)
     })
-    
+
+    bus.subscribe('rootSVGElementCreated', function(elem){
+      svgElem = elem    
+    })
+
     exports.uiAction = uiAction
-    exports.setSvgElem = function(s){svgElem = s}
   }
 }, ['eventbus', 'svg', 'controls/titleinput', 'relations'])

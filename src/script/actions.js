@@ -237,10 +237,10 @@ require.define({
       document.location.reload()
     })
 
+    bus.subscribe('rootSVGElementCreated', function(elem){
+      svgElem = elem    
+    })
   
-    exports.setSvgElem = function(elem){
-      svgElem = elem
-    }
     
     exports.actions = actions  
   }

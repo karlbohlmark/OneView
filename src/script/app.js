@@ -22,10 +22,9 @@ var getRelationId = function(fromNode, toNode){
 }
 
 var app = (function(){
-  var svgElem = svg.createElement('svg')
-    , handlers = {}
+  var handlers = {}
   
-  svgElem.appendChild(svg.defs)
+  bus.publish('init-start')
   
   var actions = require('actions').actions;
   var trigger = require('trigger').trigger;
@@ -36,24 +35,8 @@ var app = (function(){
     run: function(parentElem){
       var thisApp = this
       console.log('running app.run')
-
-      require('actions').setSvgElem(svgElem)
-      require('uiaction').setSvgElem(svgElem)
       
-      var panel = require('controls/panel').panel
-      var controlPanelView = panel()
-      controlPanelView.id = "control-panel"
-
-      
-      controlPanel.commands.forEach(function(item){
-        controlPanelView.addItem({title:item, action: function(){
-           bus.publish('command/clear')  
-        }})  
-      })
-      
-      
-      parentElem.appendChild(controlPanelView.getDomElement())
-      parentElem.appendChild(svgElem)
+      require('ui').setParent(parentElem)
       
       nodes.each(function(node){
         if(typeof node.push === "function" && node.length>0) node = node[0]
@@ -68,16 +51,7 @@ var app = (function(){
       bus.subscribe('action/relationcreated', function(relation){
         bus.publish('relationcreated', relation)
       })
-      
-      svgElem.addEventListener('mousedown', function(ev){
-        if(ev.which!=1) return
-        if(ev.target.toString().match(/SVGSVGElement/)!==null)
-        {
-          bus.publish('workspaceclicked', {x:ev.pageX, y: ev.pageY})
-        }else{
-          bus.publish('elementclicked', ev)
-        }
-      })
+
       
       bus.publish('init-complete')
       bus.publish('hack/hideinput')
@@ -89,4 +63,4 @@ var app = (function(){
 exports.app = app;
 
 }}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 
-    'relations', 'controls/panel', 'keybindings', 'undo', 'uiaction']);
+    'relations', 'controls/panel', 'keybindings', 'undo', 'uiaction', 'ui']);
