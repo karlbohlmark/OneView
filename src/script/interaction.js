@@ -77,8 +77,7 @@ require.define({
               
               var element = ev.target
                 , g = element.parentNode
-                , rect = g.childNodes[0]
-                , id = g.getAttributeNS(null, 'id')
+                , id = g.id
                 , nodeRelations = getNodeRelations(id)
                 , matrix = g.transform.animVal.getItem(0).matrix
                 , oldx =  matrix.e
