@@ -1,22 +1,19 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <link href="style.css" rel="stylesheet">
-<script src="script/lib/jquery.js"></script>
+<link href="style.css" rel="stylesheet">
 <script src="script/lib/require/src/require.js"></script>
 <script src="script/lib/lawnchair/adaptors/LawnchairAdaptorHelpers.js"></script>
 <script src="script/lib/lawnchair/adaptors/DOMStorageAdaptor.js"></script>
 <script src="script/lib/lawnchair/Lawnchair.js"></script>
-<script>
+</head>
+<body id="svgelem">
 
-$(function(){
-  window.requireBasePath = "script/"
+<script>
+window.requireBasePath = "script/"
   require(['app'], function(svgapp){
     svgapp.app.run(document.getElementsByTagName('body')[0])
   })
-})
 </script>
-</head>
-<body id="svgelem">
 </body>
 </html>
