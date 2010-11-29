@@ -6,7 +6,6 @@ require.define({
        , relations = require('relations').relations
        , uiAction = require('uiaction').uiAction
        , modelAction = require('modelaction').modelAction
-       , actions = require('interaction').actions
      
     var getNodeRelations = function(id){
       var nodeRelations = []
@@ -117,4 +116,4 @@ require.define({
   
     exports.undos = undos
   }
-}, ['eventbus', 'nodes', 'relations', 'interaction', 'edits', 'uiaction', 'modelaction'])
+}, ['eventbus', 'nodes', 'relations', 'edits', 'uiaction', 'modelaction'])
