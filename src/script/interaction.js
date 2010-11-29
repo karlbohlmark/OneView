@@ -188,13 +188,14 @@ require.define({
         
         edits.unshift(log)  
       })
-      //Ok, ite might be strange with the edit being appended async while the other action is sync...
+      //Ok, it might be strange with the edit being appended async while the other action is sync...
       modelAction.removeNode(id)
       uiAction.removeNode(id)
       
       state.selected = null
     })
     
+    //Todo: this really should be fixed. The movement should probably occur on the model before the ui is updated
     var move = function(direction){
       if(!state.selected) return
       var id = state.selected.id
@@ -221,10 +222,17 @@ require.define({
     }
     
     for(var transform in posTransforms){
-      if(posTransforms.hasOwnProperty(transform))
-        bus.subscribe(transform, function(transform){ return function(){move(transform)}}(transform))
+      if(posTransforms.hasOwnProperty(transform)){
+        bus.subscribe(transform, function(transform){ 
+            return function(){
+              move(transform)
+            }
+          }(transform)
+        )
+      }
     }
     
+    //Todo: move or remove/fix this (the initialization should not cause edits to be stacked, or alternatively it should be the correct original events)
     bus.subscribe('init-complete', function(){
       edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */  
     })
