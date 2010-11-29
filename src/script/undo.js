@@ -6,7 +6,7 @@ require.define({
        , relations = require('relations').relations
        , uiAction = require('uiaction').uiAction
        , modelAction = require('modelaction').modelAction
-       , actions = require('actions').actions
+       , actions = require('interaction').actions
      
     var getNodeRelations = function(id){
       var nodeRelations = []

@@ -1,5 +1,5 @@
 require.define({
-  'actions': function(require, exports, module){
+  'interaction': function(require, exports, module){
       
       var getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints
         , svg = require('svg').svg
