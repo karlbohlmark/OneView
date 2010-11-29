@@ -117,4 +117,4 @@ require.define({
   
     exports.undos = undos
   }
-}, ['eventbus', 'nodes', 'relations', 'actions', 'edits', 'uiaction', 'modelaction'])
+}, ['eventbus', 'nodes', 'relations', 'interaction', 'edits', 'uiaction', 'modelaction'])

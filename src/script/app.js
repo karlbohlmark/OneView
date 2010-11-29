@@ -26,7 +26,7 @@ var app = (function(){
   
   bus.publish('init-start')
   
-  var actions = require('actions').actions;
+  var actions = require('interaction').actions;
   var trigger = require('trigger').trigger;
   
   trigger.registerHandlers(actions);
@@ -62,5 +62,5 @@ var app = (function(){
 
 exports.app = app;
 
-}}, ['svg', 'controlpanel', 'actions', 'nodes', 'trigger', 
+}}, ['svg', 'controlpanel', 'interaction', 'nodes', 'trigger', 
     'relations', 'controls/panel', 'keybindings', 'undo', 'uiaction', 'ui']);
