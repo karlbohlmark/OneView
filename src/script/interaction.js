@@ -1,9 +1,7 @@
 require.define({
   'interaction': function(require, exports, module){
       
-      var getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints
-        , svg = require('svg').svg
-        , edits = require('edits').edits
+      var edits = require('edits').edits
         , facet = require('facet').facet
         , bus = require('eventbus').bus
         , nodes = require('nodes').nodes
@@ -79,9 +77,9 @@ require.define({
                 , g = element.parentNode
                 , id = g.id
                 , nodeRelations = getNodeRelations(id)
-                , matrix = g.transform.animVal.getItem(0).matrix
-                , oldx =  matrix.e
-                , oldy = matrix.f
+                , pos = getNodePosition(g)
+                , oldx =  pos.x
+                , oldy = pos.y
               ;
               
               
@@ -166,7 +164,7 @@ require.define({
     })
         
     bus.subscribe('delete', function(){
-      var id = state.selected.id
+      var id = state.selected && state.selected.id
       if(!id) return
       nodes.get(id, function(node){
         var rels = []
@@ -246,7 +244,7 @@ require.define({
   
 
   
-}, ['svg', 'edits', 'facet', 'guid', 'eventbus', 'nodes', 
+}, ['edits', 'facet', 'guid', 'eventbus', 'nodes', 
   'relations', 'state', 'keyboard', 'controls/nodemenu', 
   'controls/titleinput', 'uiaction', 'modelaction'])
 
