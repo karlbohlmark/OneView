@@ -1,5 +1,5 @@
 require.define({'svg':function(require, exports, module){  
-  ns = {
+  var ns = {
     svg: 'http://www.w3.org/2000/svg'
   };
   
@@ -11,6 +11,7 @@ require.define({'svg':function(require, exports, module){
   }
   
   var bus = require('eventbus').bus
+    , settings = require('options').options
   
   var getRectangleConnectionPoints = function(fromElem, toElem){
     var fromAttr = fromElem.childNodes[0].attributes
@@ -93,7 +94,7 @@ require.define({'svg':function(require, exports, module){
       var data = pathData.join(' ')
         , bezierPath = document.createElementNS(ns.svg, 'path')
       bezierPath.setAttributeNS(null, 'fill', 'none')
-      bezierPath.setAttributeNS(null, 'stroke', '#000000')
+      bezierPath.setAttributeNS(null, 'stroke', settings.relationColor)
       bezierPath.setAttributeNS(null, 'stroke-width', '5px')
       bezierPath.setAttributeNS(null, 'marker-end', 'url(#arrowHead)')
       
@@ -119,6 +120,8 @@ require.define({'svg':function(require, exports, module){
   
   arrow.id = 'arrowHead'
   arrow.setAttributeNS(null, 'markerUnits', 'strokeWidth')
+  arrow.setAttributeNS(null, 'stroke',  settings.relationColor)
+  arrow.setAttributeNS(null, 'fill', settings.relationColor)
   arrow.setAttributeNS(null, 'orient', 'auto')
   arrow.setAttributeNS(null, 'markerWidth', '4')
   arrow.setAttributeNS(null, 'markerHeight', '3')
@@ -135,4 +138,4 @@ require.define({'svg':function(require, exports, module){
   
   exports.svg = svg; 
   exports.getRectangleConnectionPoints = getRectangleConnectionPoints;
-}}, ['svg-assets', 'eventbus']);
+}}, ['svg-assets', 'eventbus', 'options']);

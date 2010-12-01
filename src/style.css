@@ -1,9 +1,7 @@
 #control-panel{
   background-color:#7ac8f5;
   margin:0;
-  
- 
-  
+  position:fixed;
 }
 
 body{
@@ -15,19 +13,23 @@ li:hover {
 
   background-color:black;
   color:white;
-  border-radius:5px;
+  border-radius:9px;
   border:2px solid black;
   cursor:pointer;
-  
 }
 
 ul {
   list-style-type:none;
-  height:25px;
+  padding:5px;
   
 }
 li {
   float:left;
   border:2px solid transparent;
-  
+  padding:10px;
+}
+
+
+body, svg{
+  background-color:black;
 }
