@@ -21,6 +21,9 @@ require.define({
         bus.publish('titlegiven', {'target': target, value: input.value})
         
         input.value = ""
+      }else if(ev.which==27){
+        this.style.display = 'none'
+        input.value = ""
       }
       ev.stopPropagation()
     }

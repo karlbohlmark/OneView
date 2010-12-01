@@ -65,12 +65,18 @@ require.define({
           return function(ev){
             var thisApp = this
               , cancel = canceller(ev)
+            
             titleInput.style.display='none'  
             svgElem.addEventListener('mouseup', cancel)
+            
             setTimeout(function(){
               svgElem.removeEventListener('mouseup', cancel)
+            
+              
               if(ev.cancelled){
-                return bus.publish('elementselected', ev.target)
+                //Todo: fix this hack
+                console.log(titleInput.style.display)
+                return titleInput.style.display=='none' && bus.publish('elementselected', ev.target)
               }
               
               var element = ev.target
@@ -112,17 +118,21 @@ require.define({
               , from : selected.id
               , to: to.id
             }
+          if(relation.to==relation.from) return state.selected = null
+          
           relations.save(relation)
           
           bus.publish('relationcreated', relation)
           
           edits.unshift({eventName:'relationcreated', from: relation.from, to:relation.to, key: key})
-          selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
+          
           state.selected = null
+          bus.publish('nodeunselected', selected)
+          
         }else{
           var rect = target
-          rect.setAttributeNS(null, "stroke-width", '7px')
           state.selected = rect.parentNode
+          bus.publish('nodeselected', rect.parentNode)
         }
       }
     };
@@ -159,7 +169,9 @@ require.define({
     
     bus.subscribe('cancel', function(){
       var selected = state.selected
-      selected && selected.firstChild.setAttributeNS(null, "stroke-width", '5px')
+      if(selected) {
+        bus.publish('nodeunselected', selected)
+      }
       state.selected = null
     })
         
