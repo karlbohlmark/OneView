@@ -33,3 +33,24 @@ li {
 body, svg{
   background-color:black;
 }
+
+
+dt{
+  float:left;
+  width:100px;
+  clear:left;
+}
+
+dd{
+  margin:0;
+  float:left;
+
+}
+
+#styleEditor{
+  position:fixed;
+  top:70px;
+  padding:10px;
+  border-radius:7px; 
+  background-color:#01939a;
+}

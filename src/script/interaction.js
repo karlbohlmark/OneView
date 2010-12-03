@@ -88,6 +88,11 @@ require.define({
                 , oldy = pos.y
               ;
               
+              /*
+              var canvas = g.parentNode
+              canvas.removeChild(g)
+              canvas.appendChild(g)
+              */
               
               var dragElement = (function(element, nodeRelations){
                 return function(ev){
@@ -249,7 +254,7 @@ require.define({
       edits.length = 0 /* Currently, the initialization process adds items to the edits array -> clear it */  
     })
     
-    bus.subscribe('command/clear', function(){
+    bus.subscribe('cmd/clear', function(){
       nodes.nuke() && relations.nuke()
       document.location.reload()
     })

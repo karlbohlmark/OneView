@@ -13,7 +13,7 @@ var app = {
     console.log('running app.run')
     bus.publish('init-start')
     
-    require('ui').setParent(parentElem)
+    require('ui').init(parentElem)
     
     nodes.each(function(node){
       if(typeof node.push === "function" && node.length>0) node = node[0]

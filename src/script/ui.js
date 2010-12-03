@@ -1,10 +1,11 @@
 require.define({
   'ui' : function(require, exports, module){
-      var parent
-        , svg = require('svg').svg
+      var svg = require('svg').svg
         , bus = require('eventbus').bus
         , controlPanel = require('controlpanel')
         , panel = require('controls/panel').panel
+        , styleEditor = require('controls/style-editor').styleEditor
+      
       var svgElem = svg.createElement('svg')
       svgElem.appendChild(svg.defs)
       
@@ -23,20 +24,22 @@ require.define({
         bus.publish('rootSVGElementCreated', svgElem)  
       })
       
+      /**
+       * Control panel with high level menu options such as 'clear canvas'
+       */
       var controlPanelView = panel()
       controlPanelView.id = "control-panel"
-
       
       controlPanel.commands.forEach(function(item){
-        controlPanelView.addItem({title:item, action: function(){
-           bus.publish('command/clear')  
-        }})  
+        controlPanelView.addItem(item)
       })
       
-      exports.setParent = function(parentEl){
-        parent = parentEl
-        parent.appendChild(controlPanelView.getDomElement())
-        parent.appendChild(svgElem)
+      
+      
+      exports.init = function(parentEl){
+        parentEl.appendChild(controlPanelView.getDomElement())
+        parentEl.appendChild(svgElem)
+        parentEl.appendChild(styleEditor)
       }
   }
-}, ['svg', 'eventbus', 'controlpanel', 'controls/panel'])
+}, ['svg', 'eventbus', 'controlpanel', 'controls/panel', 'controls/style-editor'])

@@ -7,6 +7,7 @@ require.define({
       , relations = require('relations').relations
       , getRectangleConnectionPoints = require('svg').getRectangleConnectionPoints
       , svgElem
+      , options = require('options').options
 
     
     var getNodePosition = function(n){
@@ -105,4 +106,4 @@ require.define({
 
     exports.uiAction = uiAction
   }
-}, ['eventbus', 'svg', 'controls/titleinput', 'relations'])
+}, ['eventbus', 'svg', 'controls/titleinput', 'relations', 'options'])
