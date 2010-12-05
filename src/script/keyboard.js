@@ -11,10 +11,13 @@ require.define({
     
     var modifiers = {
       ctrl: false,
-      alt: false
+      alt: false,
+      shift: false
     }
     
     document.onkeydown = function(ev){
+      if(ev.which==16)
+        modifiers.shift = true
       if(ev.which == 17)
         modifiers.ctrl = true
       if(ev.which == 18)
@@ -22,6 +25,8 @@ require.define({
     }
     
     document.onkeyup = function(ev){
+      if(ev.which==16)
+        modifiers.shift = false
       if(ev.which==17)
         modifiers.ctrl = false
       if(ev.which==18)

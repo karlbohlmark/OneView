@@ -31,7 +31,9 @@ li {
 
 
 body, svg{
+  /*
   background-color:black;
+  */
 }
 
 
@@ -53,4 +55,31 @@ dd{
   padding:10px;
   border-radius:7px; 
   background-color:#01939a;
+}
+
+
+svg{
+  -webkit-user-select:none;
+}
+
+rect{
+  stroke-width: 5px;
+}
+
+rect[data-selected]{
+  stroke-width: 7px;
+}
+
+rect.handle{
+  stroke-width: 2px;
+  display:none;
+}
+
+.active rect{
+  stroke-width: 4px;
+  display:block;
+}
+
+#selection{
+  opacity:0.5;
 }

@@ -12,7 +12,7 @@ require.define({
     panel.prototype.addItem = function(item){
       var li = document.createElement('li')
       li.innerHTML = item.name
-      li.addEventListener('click', item.action)
+      li.addEventListener('click', item.action, true)
       this._ul.appendChild(li)
     }
     

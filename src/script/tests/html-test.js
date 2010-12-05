@@ -4,6 +4,7 @@ require.define(
       var  _ = require('html').dsl
         , div = _.div
         , dl = _.dl
+        , input = _.input
         , equal = QUnit.equal
         , expect = QUnit.expect
       
@@ -24,6 +25,9 @@ require.define(
         },
         'can create div with child div' : function(){
           equal(div(div()).toHtml(), '<div><div></div></div>')
+        },
+        'can create input with name and value' : function(){
+          equal(input({name:"testname", value:"testvalue"}).toHtml(), '<input name="testname" value="testvalue"/>')
         }
       }
       

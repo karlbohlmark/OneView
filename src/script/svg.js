@@ -14,6 +14,8 @@ require.define({'svg':function(require, exports, module){
     , settings = require('options').options
   
   var getRectangleConnectionPoints = function(fromElem, toElem){
+    if(!fromElem)
+      throw "Invalid from-element"
     var fromAttr = fromElem.childNodes[0].attributes
       , toAttr = toElem.childNodes[0].attributes
       , fromMatrix = fromElem.transform.animVal.getItem(0).matrix
@@ -40,7 +42,7 @@ require.define({'svg':function(require, exports, module){
       var elem = document.createElementNS(ns.svg, elementType)
       if(elem && attrs){
         for(attr in attrs){
-          elem.setAttributeNS(null, attr, attrs[attr])
+          elem.setAttribute(attr, attrs[attr])
         }
       }
       return elem
@@ -117,7 +119,6 @@ require.define({'svg':function(require, exports, module){
   
   var defs = svg.createElement('defs')
   var arrow = svg.createElement('marker')
-  
   arrow.id = 'arrowHead'
   arrow.setAttributeNS(null, 'markerUnits', 'strokeWidth')
   arrow.setAttributeNS(null, 'stroke',  settings.relationColor)
@@ -132,6 +133,26 @@ require.define({'svg':function(require, exports, module){
   triangle.setAttributeNS(null, 'd','M 0 0 L 10 5 L 0 10 z')
   arrow.appendChild(triangle)
   defs.appendChild(arrow)
+  
+  var nodeMarker = svg.createElement('rect', {
+    width:"210",
+    height:"130",
+    fill:"transparent",
+    stroke:"#000000",
+    'stroke-width':"2px",
+    id:'nodeMarker'  
+  })
+  defs.appendChild(nodeMarker)
+
+  var nodeHandle = svg.createElement('rect', {
+    width:"10",
+    height:"10",
+    fill:"transparent",
+    stroke:"#000000",
+    'stroke-width':"2px",
+    id:'nodeHandle'  
+  })
+  defs.appendChild(nodeHandle)
   
   svg.defs = defs
   

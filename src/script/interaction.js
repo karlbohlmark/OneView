@@ -67,10 +67,10 @@ require.define({
               , cancel = canceller(ev)
             
             titleInput.style.display='none'  
-            svgElem.addEventListener('mouseup', cancel)
+            svgElem.addEventListener('mouseup', cancel, false)
             
             setTimeout(function(){
-              svgElem.removeEventListener('mouseup', cancel)
+              svgElem.removeEventListener('mouseup', cancel, false)
             
               
               if(ev.cancelled){
@@ -150,6 +150,24 @@ require.define({
     bus.subscribe('elementselected', function(target){
       actions.select(target)
     })
+    
+    bus.subscribe('selectionstart', function(ev){
+      var sel = document.getElementById('selection')
+      sel.style.display = "block"
+
+      sel.setAttribute('x', ev.clientX)
+      sel.setAttribute('y', ev.clientY)
+      
+            
+      svgElem.removeChild(sel)
+      svgElem.appendChild(sel)
+      
+      document.onmousemove = uiAction.drawSelectionBox
+      document.onmouseup = function(){
+        document.onmousemove = null
+        sel.style.display = "none"
+      }
+    })
           
     bus.subscribe('titlegiven', function(ev){
       var target = ev.target
@@ -177,13 +195,27 @@ require.define({
       if(selected) {
         bus.publish('nodeunselected', selected)
       }
+      
+      
+      document.getElementById('selection').style.display="none"
+      nodes.each(function(n){
+        document.getElementById(n.id).removeAttribute('class')
+      })
+      
       state.selected = null
     })
         
     bus.subscribe('delete', function(){
+      /*
       var id = state.selected && state.selected.id
       if(!id) return
-      nodes.get(id, function(node){
+      */
+      
+      nodes.each(function(node){
+        var id = node.id
+        if(document.getElementById(id).getAttribute('class')!="active"){
+          return
+        }
         var rels = []
         relations.each(function(r){
           if(r.from==id || r.to==id){ 
@@ -203,13 +235,13 @@ require.define({
         var log = [node]
         log = log.concat(rels)
         
-        edits.unshift(log)  
+        edits.unshift(log)
+        
+        modelAction.removeNode(id)
+        uiAction.removeNode(id)
+        bus.publish('hack/hideinput')
       })
-      //Ok, it might be strange with the edit being appended async while the other action is sync...
-      modelAction.removeNode(id)
-      uiAction.removeNode(id)
-      
-      state.selected = null
+
     })
     
     //Todo: this really should be fixed. The movement should probably occur on the model before the ui is updated
@@ -257,6 +289,10 @@ require.define({
     bus.subscribe('cmd/clear', function(){
       nodes.nuke() && relations.nuke()
       document.location.reload()
+    })
+    
+    bus.subscribe('cmd/download', function(){
+       var svg_xml = (new XMLSerializer()).serializeToString(svgElem);
     })
 
     bus.subscribe('rootSVGElementCreated', function(elem){
