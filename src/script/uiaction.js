@@ -100,11 +100,14 @@ require.define({
         inp.focus()
         
         rect.addEventListener('dblclick', function(e){
-          console.log('doubleclick')
           titleInput.setAttribute('data-target', g.id)
+          
           if(text.childNodes.length>0){
             titleInput.value = text.childNodes[0].textContent
-          }else{titleInput.value=""}
+          }else{
+            titleInput.value=""
+          }
+          
           var pos = getNodePosition(this.parentNode)
           titleInput.style.left = (parseInt(pos.x) -77) +'px'
           titleInput.style.top = (parseInt(pos.y) + svgElem.offsetTop -18) +'px'
@@ -112,7 +115,6 @@ require.define({
           titleInput.focus()
           
           bus.publish('nodeeditmodeentered')
-          //titleInput.removeAttribute('x-webkit-speech')
         }, useCapture)
       },
        relationCreated : function(relation){
@@ -145,7 +147,6 @@ require.define({
           }
         })
         
-        console.log(width)
         box.setAttribute('width', width)
         box.setAttribute('height', height)
       }

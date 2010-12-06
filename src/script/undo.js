@@ -69,7 +69,7 @@ require.define({
           }
           
           relations.save(relation)
-          bus.publish('action/relationcreated', relation)
+          bus.publish('relationcreated', relation)
       }
       , 'deletenode' : function(edit){
         modelAction.createNode(edit)
