@@ -1,0 +1,4 @@
+cleanup:
+interaction.js <- too long, unclear responsibility
+uiaction.js <- unclear responsibility, some code should move to stylesheet, some should move to ui-components
+modelaction.js <- currently handles a couple of interaction-events from the bus. Is this appropriate?
