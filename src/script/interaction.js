@@ -241,7 +241,7 @@ require.define({
         uiAction.removeNode(id)
         bus.publish('hack/hideinput')
       })
-
+      state.selected && document.getElementById(state.selected.id)==null && (state.selected=null)
     })
     
     //Todo: this really should be fixed. The movement should probably occur on the model before the ui is updated
