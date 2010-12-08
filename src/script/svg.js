@@ -18,16 +18,18 @@ require.define({'svg':function(require, exports, module){
       throw "Invalid from-element"
     var fromAttr = fromElem.childNodes[0].attributes
       , toAttr = toElem.childNodes[0].attributes
-      , fromMatrix = fromElem.transform.animVal.getItem(0).matrix
-      , toMatrix = toElem.transform.animVal.getItem(0).matrix
+      , fromAnimVal = fromElem.transform.animVal
+      , toAnimVal = toElem.transform.animVal
+      , fromMatrix = fromAnimVal.getItem(0).matrix
+      , toMatrix = toAnimVal.getItem(0).matrix
       , fromx = parseInt(fromMatrix.e)
       , fromy = parseInt(fromMatrix.f)
       , tox = parseInt(toMatrix.e)
       , toy = parseInt(toMatrix.f)
-      , fromWidth = parseInt(fromAttr.width.value)
-      , fromHeight = parseInt(fromAttr.height.value)
-      , toWidth = parseInt(toAttr.width.value)
-      , toHeight = parseInt(toAttr.height.value)
+      , fromWidth = parseInt(fromAttr.width.value) * (fromAnimVal.numberOfItems>1 ? fromAnimVal.getItem(1).matrix.a : 1)
+      , fromHeight = parseInt(fromAttr.height.value) * (fromAnimVal.numberOfItems>1 ? fromAnimVal.getItem(1).matrix.d : 1)
+      , toWidth = parseInt(toAttr.width.value) * (toAnimVal.numberOfItems>1 ? toAnimVal.getItem(1).matrix.a : 1)
+      , toHeight = parseInt(toAttr.height.value) * (toAnimVal.numberOfItems>1 ? toAnimVal.getItem(1).matrix.d : 1)
       , xdiff = (fromx - tox)
       , ydiff = (fromy - toy)
       , vertical = (Math.abs(xdiff) < (1.25*fromWidth)) && (Math.abs(ydiff)> (fromHeight+toHeight)/2) 
@@ -35,6 +37,7 @@ require.define({'svg':function(require, exports, module){
       , fromPointy = vertical ? (ydiff<0) ? (fromy + fromHeight/2) : (fromy - fromHeight/2) : fromy
       , toPointx = vertical  ? tox : xdiff<0 ? tox - toWidth/2 : tox + toWidth/2
       , toPointy = vertical ? (ydiff<0) ? (toy - toHeight/2) : (toy + toHeight/2) : toy
+      
     return [{x:fromPointx, y:fromPointy, vertical:vertical},{x:toPointx, y:toPointy}]
   }
   var svg = {

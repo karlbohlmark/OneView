@@ -31,7 +31,10 @@ require.define({
       }
       
       var moveElement = function(x, y, element, nodeRelations){
-        element.setAttributeNS(null, "transform", 'translate(' + x +' ' + y +')')
+        var translate = 'translate(' + x +' ' + y +')'
+        var oldTransform = element.getAttribute('transform')
+        var newTransform = oldTransform.replace(/translate\([^\)]*\)/,translate)
+        element.setAttributeNS(null, "transform", newTransform)
         for(var r in nodeRelations){
           r = nodeRelations[r]
           var path = document.getElementById(r.key)

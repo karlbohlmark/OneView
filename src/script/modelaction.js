@@ -46,13 +46,25 @@ require.define({
           nodes.save(n)
         })
         bus.publish('nodemoved', ev)
+      }, 
+      resizeNode : function(ev){
+        nodes.get(ev.id, function(n){
+          n.scaleX = ev.scaleX
+          n.scaleY = ev.scaleY
+          nodes.save(n)
+        })
       }
+      
     }
     
       
     
     bus.subscribe('nodedropped', function(ev){
       modelAction.moveNode(ev) 
+    })
+    
+    bus.subscribe('noderesized', function(ev){
+      modelAction.resizeNode(ev) 
     })
     
     bus.subscribe('workspaceclicked', function(where){

@@ -16,6 +16,16 @@ require.define({
       return {x:matrix.e, y:matrix.f}
     }
     
+    var getNodeRelations = function(id){
+      var nodeRelations = []
+      relations.each(function(r){
+        if(r.from == id || r.to == id){
+          nodeRelations.push(r)
+        }
+      })
+      return nodeRelations
+    }
+    
     var getRelationId = function(fromNode, toNode){
       return 'from=' + fromNode + '&to=' + toNode;
     }
@@ -163,6 +173,7 @@ require.define({
         , origHeight = rect.getAttribute('height')
         , pos = getNodePosition(node)
         , transform = node.getAttribute('transform')
+        , relations = getNodeRelations(node.id)
         , width
         , height
       document.onmousemove = function(ev){
@@ -174,10 +185,18 @@ require.define({
          scaleY = height/ origHeight
          
          node.setAttribute('transform', transform + " scale(" + scaleX + " " + scaleY  +")")
-         //rect.setAttribute('height', height)
+         for(var r in relations){
+            r = relations[r]
+            var path = document.getElementById(r.key)
+            if(path==null)
+              throw "no path matching: " + r.key
+            path.parentNode.removeChild(path)
+            
+            bus.publish('relationcreated', r)
+          }
       }
       document.onmouseup = function(){
-        bus.publish('noderesized', {id: node.id, width:width, height:height})
+        bus.publish('noderesized', {id: node.id, scaleX:scaleX, scaleY:scaleY})
         document.onmousemove = null
       }
     })
