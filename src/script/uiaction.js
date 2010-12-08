@@ -63,6 +63,11 @@ require.define({
         handle11.setAttribute('x', -x-4)
         handle11.setAttribute('y', -y-5)
         
+        handle11.addEventListener('mousedown', function(ev){
+          bus.publish('resize', g)
+          ev.stopPropagation()
+        })
+        
         /*
         g.addEventListener('mouseover', function(){
           this.setAttribute('class', 'active')
@@ -81,9 +86,9 @@ require.define({
         g.appendChild(rect)
         g.appendChild(text)
         g.appendChild(handle)
-        g.appendChild(handle00)
-        g.appendChild(handle01)
-        g.appendChild(handle10)
+        //g.appendChild(handle00)
+        //g.appendChild(handle01)
+        //g.appendChild(handle10)
         g.appendChild(handle11)
         
         text.textContent = nodeData.text || ''
@@ -151,6 +156,31 @@ require.define({
         box.setAttribute('height', height)
       }
     }
+    
+    bus.subscribe('resize', function(node){
+      var rect = node.firstChild
+        , origWidth = rect.getAttribute('width')
+        , origHeight = rect.getAttribute('height')
+        , pos = getNodePosition(node)
+        , transform = node.getAttribute('transform')
+        , width
+        , height
+      document.onmousemove = function(ev){
+         var x = ev.clientX
+           , y = ev.clientY
+         width = (x-pos.x)*2
+         height = (y-pos.y)*2
+         scaleX = width/ origWidth
+         scaleY = height/ origHeight
+         
+         node.setAttribute('transform', transform + " scale(" + scaleX + " " + scaleY  +")")
+         //rect.setAttribute('height', height)
+      }
+      document.onmouseup = function(){
+        bus.publish('noderesized', {id: node.id, width:width, height:height})
+        document.onmousemove = null
+      }
+    })
     
     bus.subscribe('relationcreated', function(relation){
       uiAction.relationCreated(relation)

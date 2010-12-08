@@ -72,6 +72,7 @@ rect[data-selected]{
 
 rect.handle{
   stroke-width: 2px;
+  cursor:se-resize;
   display:none;
 }
 
